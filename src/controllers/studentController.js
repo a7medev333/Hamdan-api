@@ -2,6 +2,7 @@ const Student = require('../models/student');
 const jwt = require('jsonwebtoken');
 const fs = require('fs').promises;
 const path = require('path');
+const PlaylistContent = require('../models/playlistContent');
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -362,6 +363,168 @@ exports.deleteStudent = async (req, res) => {
     res.status(400).json({
       success: false,
       message: 'Error deleting student',
+      error: error.message
+    });
+  }
+};
+
+// Add student to playlist
+exports.addToPlaylist = async (req, res) => {
+  try {
+    const { studentId, playlistId } = req.params;
+
+    // Verify student exists
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
+
+    // Verify playlist exists
+    const playlist = await PlaylistContent.findById(playlistId);
+    if (!playlist) {
+      return res.status(404).json({
+        success: false,
+        message: 'Playlist not found'
+      });
+    }
+
+    // Check if student is already in playlist
+    if (playlist.students && playlist.students.includes(studentId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Student is already in this playlist'
+      });
+    }
+
+    // Add student to playlist
+    if (!playlist.students) {
+      playlist.students = [];
+    }
+    playlist.students.push(studentId);
+    await playlist.save();
+
+    // Add playlist to student's playlists if needed
+    if (!student.playlists) {
+      student.playlists = [];
+    }
+    if (!student.playlists.includes(playlistId)) {
+      student.playlists.push(playlistId);
+      await student.save();
+    }
+
+    res.json({
+      success: true,
+      message: 'Student added to playlist successfully',
+      data: {
+        student: {
+          id: student._id,
+          name: student.name,
+          email: student.email
+        },
+        playlist: {
+          id: playlist._id,
+          title: playlist.title,
+          description: playlist.description,
+          totalStudents: playlist.students.length
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error adding student to playlist',
+      error: error.message
+    });
+  }
+};
+
+// Add multiple students to playlist
+exports.addMultipleToPlaylist = async (req, res) => {
+  try {
+    const { playlistId } = req.params;
+    const { studentIds } = req.body;
+
+    if (!studentIds || !Array.isArray(studentIds) || studentIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide an array of student IDs'
+      });
+    }
+
+    // Verify playlist exists
+    const playlist = await PlaylistContent.findById(playlistId);
+    if (!playlist) {
+      return res.status(404).json({
+        success: false,
+        message: 'Playlist not found'
+      });
+    }
+
+    // Verify all students exist
+    const students = await Student.find({ _id: { $in: studentIds } });
+    if (students.length !== studentIds.length) {
+      return res.status(400).json({
+        success: false,
+        message: 'Some student IDs are invalid'
+      });
+    }
+
+    // Initialize students array if it doesn't exist
+    if (!playlist.students) {
+      playlist.students = [];
+    }
+
+    // Add students to playlist if they're not already in it
+    const newStudents = studentIds.filter(id => !playlist.students.includes(id));
+    if (newStudents.length > 0) {
+      playlist.students.push(...newStudents);
+      await playlist.save();
+    }
+
+    // Add playlist to students' playlists
+    await Promise.all(students.map(async (student) => {
+      if (!student.playlists) {
+        student.playlists = [];
+      }
+      if (!student.playlists.includes(playlistId)) {
+        student.playlists.push(playlistId);
+        await student.save();
+      }
+    }));
+
+    res.json({
+      success: true,
+      message: `${newStudents.length} students added to playlist successfully`,
+      data: {
+        playlist: {
+          id: playlist._id,
+          title: playlist.title,
+          description: playlist.description,
+          totalStudents: playlist.students.length
+        },
+        addedStudents: students
+          .filter(s => newStudents.includes(s._id.toString()))
+          .map(s => ({
+            id: s._id,
+            name: s.name,
+            email: s.email
+          })),
+        skippedStudents: students
+          .filter(s => !newStudents.includes(s._id.toString()))
+          .map(s => ({
+            id: s._id,
+            name: s.name,
+            email: s.email
+          }))
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error adding students to playlist',
       error: error.message
     });
   }

@@ -183,3 +183,143 @@ exports.getWatchHistory = async (req, res) => {
     });
   }
 };
+
+// Get dashboard statistics
+exports.getDashboardStats = async (req, res) => {
+  try {
+    const now = new Date();
+    const twentyFourHoursAgo = new Date(now - 24 * 60 * 60 * 1000);
+
+    // Get count of students currently watching (active in last 24 hours)
+    const activeWatchingCount = await CourseWatch.countDocuments({
+      watchedAt: { $gte: twentyFourHoursAgo }
+    });
+
+    // Get total number of students
+    const totalStudents = await Student.countDocuments();
+
+    // Calculate students not watching
+    const notWatchingCount = totalStudents - activeWatchingCount;
+
+    // Get top watched courses
+    const topWatchedCourses = await CourseWatch.aggregate([
+      {
+        $group: {
+          _id: '$course',
+          totalWatches: { $sum: 1 },
+          totalDuration: { $sum: '$watchDuration' }
+        }
+      },
+      {
+        $lookup: {
+          from: 'courses',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'courseDetails'
+        }
+      },
+      {
+        $unwind: '$courseDetails'
+      },
+      {
+        $project: {
+          courseName: '$courseDetails.name',
+          totalWatches: 1,
+          totalDuration: 1
+        }
+      },
+      {
+        $sort: { totalWatches: -1 }
+      },
+      {
+        $limit: 5
+      }
+    ]);
+
+    // Get students with most watch time
+    const topStudents = await Student.find()
+      .sort({ totalWatchingHours: -1 })
+      .limit(5)
+      .select('name email totalWatchingHours');
+
+    // Get high viewership students (students who watched >80% of their enrolled courses)
+    const highViewershipStudents = await CourseWatch.aggregate([
+      {
+        $group: {
+          _id: '$student',
+          completedCourses: {
+            $sum: { $cond: [{ $eq: ['$completed', true] }, 1, 0] }
+          },
+          totalCourses: { $sum: 1 }
+        }
+      },
+      {
+        $match: {
+          totalCourses: { $gt: 0 }
+        }
+      },
+      {
+        $project: {
+          student: '$_id',
+          completionRate: {
+            $multiply: [
+              { $divide: ['$completedCourses', '$totalCourses'] },
+              100
+            ]
+          },
+          completedCourses: 1,
+          totalCourses: 1
+        }
+      },
+      {
+        $match: {
+          completionRate: { $gte: 80 }
+        }
+      },
+      {
+        $lookup: {
+          from: 'students',
+          localField: 'student',
+          foreignField: '_id',
+          as: 'studentDetails'
+        }
+      },
+      {
+        $unwind: '$studentDetails'
+      },
+      {
+        $project: {
+          _id: 0,
+          name: '$studentDetails.name',
+          email: '$studentDetails.email',
+          completionRate: 1,
+          completedCourses: 1,
+          totalCourses: 1
+        }
+      }
+    ]);
+
+    const highViewershipCount = highViewershipStudents.length;
+
+    res.json({
+      success: true,
+      data: {
+        activeWatchingCount,
+        notWatchingCount,
+        totalStudents,
+        topWatchedCourses,
+        topStudents,
+        highViewership: {
+          count: highViewershipCount,
+          students: highViewershipStudents
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching dashboard statistics',
+      error: error.message
+    });
+  }
+};

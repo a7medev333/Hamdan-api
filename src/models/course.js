@@ -26,9 +26,19 @@ const courseSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  duration: {
+    type: Number,  // Duration in seconds
+    required: true,
+    default: 0
+  },
   playlistId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'PlaylistContent',
+    required: true
+  },
+  isLocked: {
+    type: Boolean,
+    default: true,
     required: true
   },
   socialMedia: {

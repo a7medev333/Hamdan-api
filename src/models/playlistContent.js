@@ -21,11 +21,19 @@ const playlistContentSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  student: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Student',
+    required: false  
+  },
   createdAt: {
     type: Date,
     default: Date.now
   }
 });
+
+// Add index for faster queries by student
+playlistContentSchema.index({ student: 1 });
 
 const PlaylistContent = mongoose.model('PlaylistContent', playlistContentSchema);
 module.exports = PlaylistContent;

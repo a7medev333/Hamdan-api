@@ -1,6 +1,8 @@
 const Course = require('../models/course');
 const fs = require('fs').promises;
 const path = require('path');
+const { getVideoDurationInSeconds } = require('get-video-duration');
+const PlaylistContent = require('../models/playlistContent'); // Assuming PlaylistContent model is defined in this file
 
 // Create new course
 exports.createCourse = async (req, res) => {
@@ -50,6 +52,30 @@ exports.createCourse = async (req, res) => {
       });
     }
 
+    // Get video duration
+    let duration = 0;
+    try {
+      duration = await getVideoDurationInSeconds(videoLink);
+      duration = Math.round(duration); // Round to nearest second
+    } catch (error) {
+      console.error('Error getting video duration:', error);
+      // Continue with duration as 0 if there's an error
+    }
+
+    // Format duration for playlist display (HH:MM:SS)
+    const formatDuration = (seconds) => {
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const remainingSeconds = Math.floor(seconds % 60);
+      
+      const pad = (num) => num.toString().padStart(2, '0');
+      
+      if (hours > 0) {
+        return `${pad(hours)}:${pad(minutes)}:${pad(remainingSeconds)}`;
+      }
+      return `${pad(minutes)}:${pad(remainingSeconds)}`;
+    };
+
     // Create new course
     const course = new Course({
       title,
@@ -57,11 +83,19 @@ exports.createCourse = async (req, res) => {
       name,
       titleFile,
       videoLink,
+      duration,
       playlistId,
       socialMedia: socialMedia || {}
     });
 
     await course.save();
+
+    // Update playlist videoLength
+    const playlist = await PlaylistContent.findById(playlistId);
+    if (playlist) {
+      playlist.videoLength = formatDuration(duration);
+      await playlist.save();
+    }
 
     res.status(201).json({
       success: true,
@@ -93,7 +127,8 @@ exports.createCourse = async (req, res) => {
 // Get all courses
 exports.listCourses = async (req, res) => {
   try {
-    const courses = await Course.find().populate('playlistId', 'title description image');
+    const courses = await Course.find().populate('playlistId', 'title description image')
+    
     
     res.json({
       success: true,
@@ -137,10 +172,17 @@ exports.getCourse = async (req, res) => {
 // Update course
 exports.updateCourse = async (req, res) => {
   try {
-    const updateData = { ...req.body };
-    const oldCourse = await Course.findById(req.params.id);
+    const courseId = req.params.id;
+    const {
+      title,
+      description,
+      name,
+      playlistId,
+      socialMedia
+    } = req.body;
 
-    if (!oldCourse) {
+    let course = await Course.findById(courseId);
+    if (!course) {
       // Clean up uploaded files
       if (req.files) {
         for (const fileArray of Object.values(req.files)) {
@@ -160,31 +202,68 @@ exports.updateCourse = async (req, res) => {
       });
     }
 
-    // Update file paths if new files are uploaded
-    if (req.files?.['image']?.[0]) {
-      updateData.titleFile = req.files['image'][0].path;
-      // Delete old image file
-      try {
-        await fs.unlink(oldCourse.titleFile);
-      } catch (unlinkError) {
-        console.error('Error deleting old image:', unlinkError);
+    // Check if new title exists (if title is being changed)
+    if (title && title !== course.title) {
+      const existingCourse = await Course.findOne({ title });
+      if (existingCourse) {
+        return res.status(400).json({
+          success: false,
+          message: 'Course title already exists'
+        });
       }
     }
 
-    if (req.files?.['video']?.[0]) {
-      updateData.videoLink = req.files['video'][0].path;
-      // Delete old video file
-      try {
-        await fs.unlink(oldCourse.videoLink);
-      } catch (unlinkError) {
-        console.error('Error deleting old video:', unlinkError);
+    // Handle file updates
+    const updates = {
+      title,
+      description,
+      name,
+      playlistId: playlistId || course.playlistId,
+      socialMedia
+    };
+
+    if (req.files) {
+      // Update image if provided
+      if (req.files['image']) {
+        updates.titleFile = req.files['image'][0].path;
+        // Delete old image
+        if (course.titleFile) {
+          await fs.unlink(course.titleFile).catch(console.error);
+        }
+      }
+
+      // Update video if provided
+      if (req.files['video']) {
+        updates.videoLink = req.files['video'][0].path;
+        
+        // Get new video duration
+        try {
+          updates.duration = Math.round(await getVideoDurationInSeconds(updates.videoLink));
+          
+          // Update playlist videoLength
+          const playlist = await PlaylistContent.findById(updates.playlistId);
+          if (playlist) {
+            playlist.videoLength = formatDuration(updates.duration);
+            await playlist.save();
+          }
+        } catch (error) {
+          console.error('Error getting video duration:', error);
+          // Keep existing duration if there's an error
+          updates.duration = course.duration;
+        }
+
+        // Delete old video
+        if (course.videoLink) {
+          await fs.unlink(course.videoLink).catch(console.error);
+        }
       }
     }
 
-    const course = await Course.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true, runValidators: true }
+    // Update course
+    course = await Course.findByIdAndUpdate(
+      courseId,
+      { $set: updates },
+      { new: true }
     ).populate('playlistId', 'title description image');
 
     res.json({
@@ -244,6 +323,100 @@ exports.deleteCourse = async (req, res) => {
     res.status(400).json({
       success: false,
       message: 'Error deleting course',
+      error: error.message
+    });
+  }
+};
+
+// Get available courses (unlocked only)
+exports.getAvailableCourses = async (req, res) => {
+  try {
+    const courses = await Course.find({ isLocked: false })
+      .populate('playlistId')
+      .sort({ createdAt: -1 });
+    // const courses = await Course.find({ isLocked: false })
+    // .populate('playlistId', 'title description image')
+    // .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      count: courses.length,
+      data: courses
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching available courses',
+      error: error.message
+    });
+  }
+};
+
+// Toggle course lock status
+exports.toggleCourseLock = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const course = await Course.findById(id);
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: 'Course not found'
+      });
+    }
+
+    course.isLocked = !course.isLocked;
+    await course.save();
+
+    res.json({
+      success: true,
+      message: `Course ${course.isLocked ? 'locked' : 'unlocked'} successfully`,
+      data: course
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error toggling course lock status',
+      error: error.message
+    });
+  }
+};
+
+// Get courses by playlist ID
+exports.getCoursesByPlaylist = async (req, res) => {
+  try {
+    const { playlistId } = req.params;
+    
+    // Find all courses for this playlist
+    const courses = await Course.find({ 
+      playlistId
+    })
+    .populate('playlistId', 'title description image videoLength')
+    .sort({ createdAt: -1 });
+
+    // Get the playlist details
+    const playlist = await PlaylistContent.findById(playlistId)
+      .select('title description image videoLength');
+
+    if (!playlist) {
+      return res.status(404).json({
+        success: false,
+        message: 'Playlist not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        playlist,
+        courses,
+        totalCourses: courses.length
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching courses by playlist',
       error: error.message
     });
   }

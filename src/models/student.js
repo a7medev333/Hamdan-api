@@ -35,6 +35,12 @@ const studentSchema = new mongoose.Schema({
     trim: true,
     lowercase: true
   },
+  // Device notification token
+  fcmToken: {
+    type: String,
+    trim: true,
+    default: null
+  },
   // Image
   image: {
     type: String,  // Store the image path
@@ -46,6 +52,16 @@ const studentSchema = new mongoose.Schema({
     trim: true,
     default: ''
   },
+  // Student's enrolled playlists
+  enrolledPlaylists: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'PlaylistContent'
+  }],
+  // Shopping Cart
+  cart: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'PlaylistContent'
+  }],
   // Block status
   isBlocked: {
     type: Boolean,
