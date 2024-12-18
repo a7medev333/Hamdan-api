@@ -1,0 +1,185 @@
+    const CourseWatch = require('../models/courseWatch');
+const Course = require('../models/course');
+const Student = require('../models/student');
+
+// Start or resume watching a course
+exports.startWatch = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const studentId = req.student._id; // Using req.student from auth middleware
+
+    // Check if course exists
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: 'Course not found'
+      });
+    }
+
+    // Find or create watch record
+    let courseWatch = await CourseWatch.findOne({
+      student: studentId,
+      course: courseId
+    });
+
+    if (!courseWatch) {
+      courseWatch = new CourseWatch({
+        student: studentId,
+        course: courseId,
+        watchedAt: new Date(),
+        watchDuration: 0,
+        lastPosition: 0,
+        completed: false
+      });
+    } else {
+      courseWatch.watchedAt = new Date(); // Update last watched time
+    }
+
+    await courseWatch.save();
+
+    res.json({
+      success: true,
+      message: 'Course watch session started',
+      data: courseWatch
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: 'Error starting course watch',
+      error: error.message
+    });
+  }
+};
+
+// Update watch progress
+exports.updateProgress = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const { currentPosition, duration } = req.body;
+    const studentId = req.student._id;
+
+    if (typeof currentPosition !== 'number' || typeof duration !== 'number') {
+      return res.status(400).json({
+        success: false,
+        message: 'Current position and duration must be numbers'
+      });
+    }
+
+    let courseWatch = await CourseWatch.findOne({
+      student: studentId,
+      course: courseId
+    });
+
+    if (!courseWatch) {
+      return res.status(404).json({
+        success: false,
+        message: 'Watch session not found'
+      });
+    }
+
+    // Calculate the time watched in this session
+    const previousPosition = courseWatch.lastPosition;
+    const watchedDuration = Math.max(0, currentPosition - previousPosition);
+    
+    // Update course watch record
+    courseWatch.lastPosition = currentPosition;
+    courseWatch.watchDuration += watchedDuration;
+    courseWatch.completed = currentPosition >= duration * 0.9; // Mark as completed if watched 90% of the course
+    
+    await courseWatch.save();
+
+    // Update student's total watching hours
+    if (watchedDuration > 0) {
+      const watchedHours = watchedDuration / 3600; // Convert seconds to hours
+      await Student.findByIdAndUpdate(
+        studentId,
+        { $inc: { totalWatchingHours: watchedHours } }
+      );
+    }
+
+    res.json({
+      success: true,
+      message: 'Watch progress updated successfully',
+      data: {
+        lastPosition: courseWatch.lastPosition,
+        watchDuration: courseWatch.watchDuration,
+        completed: courseWatch.completed
+      }
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: 'Error updating watch progress',
+      error: error.message
+    });
+  }
+};
+
+// Get course progress
+exports.getCourseProgress = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const studentId = req.student._id;
+
+    const courseWatch = await CourseWatch.findOne({
+      student: studentId,
+      course: courseId
+    });
+
+    if (!courseWatch) {
+      return res.json({
+        success: true,
+        message: 'No watch record found',
+        data: {
+          lastPosition: 0,
+          watchDuration: 0,
+          completed: false
+        }
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Course progress retrieved successfully',
+      data: {
+        lastPosition: courseWatch.lastPosition,
+        watchDuration: courseWatch.watchDuration,
+        completed: courseWatch.completed
+      }
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: 'Error retrieving course progress',
+      error: error.message
+    });
+  }
+};
+
+// Get watch history for a student
+exports.getWatchHistory = async (req, res) => {
+  try {
+    const studentId = req.student._id;
+
+    const student = await Student.findById(studentId).select('totalWatchingHours');
+    const watchHistory = await CourseWatch.find({ student: studentId })
+      .populate('course', 'title description titleFile')
+      .sort('-watchedAt');
+
+    res.json({
+      success: true,
+      message: 'Watch history retrieved successfully',
+      data: {
+        totalWatchingHours: student.totalWatchingHours,
+        history: watchHistory
+      }
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: 'Error retrieving watch history',
+      error: error.message
+    });
+  }
+};

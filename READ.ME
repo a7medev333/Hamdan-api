@@ -1,0 +1,35 @@
+# Hamdan API Documentation
+
+## Student Routes
+
+Public Routes:
+POST /api/add-student     - Register new student
+POST /api/login          - Login student
+GET  /api/students       - List all students
+
+Protected Routes (require token):
+GET  /api/profile        - Get student profile
+PUT  /api/profile        - Update student profile
+
+Student Management:
+POST /api/students/:id/block    - Block a student
+POST /api/students/:id/unblock  - Unblock a student
+DELETE /api/students/:id        - Delete a student
+
+## Course Routes
+
+Course Management:
+POST   /api/courses              - Create new course
+GET    /api/courses             - List all courses
+GET    /api/courses/:id         - Get single course
+PUT    /api/courses/:id         - Update course
+DELETE /api/courses/:id         - Delete course
+
+## Playlist Content Routes
+
+Playlist Content Management:
+POST   /api/playlist-contents          - Create new playlist content
+GET    /api/playlist-contents          - List all playlist contents
+GET    /api/playlist-contents/:id      - Get single playlist content
+PUT    /api/playlist-contents/:id      - Update playlist content
+DELETE /api/playlist-contents/:id      - Delete playlist content
