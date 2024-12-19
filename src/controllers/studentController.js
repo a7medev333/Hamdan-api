@@ -80,10 +80,11 @@ exports.register = async (req, res) => {
       courseName,
       otherFields: new Map(Object.entries(otherFields || {}))
     });
-
+    var image = process.env.HOST + req.file.path;
+    console.log(image)
     // If image was uploaded
     if (req.file) {
-      student.image = req.file.path;
+      student.image =  image;
     }
 
     await student.save();
@@ -96,6 +97,7 @@ exports.register = async (req, res) => {
         username: student.username,
         name: student.name,
         email: student.email,
+        image: student.image,
         token
       }
     });
