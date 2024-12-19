@@ -27,6 +27,15 @@ const courseWatchSchema = new mongoose.Schema({
     type: Number,  // Video position in seconds
     default: 0
   }
+}, {
+  toJSON: {
+    transform: function(doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v;
+      return ret;
+    }
+  }
 });
 
 // Compound index to ensure a student can only have one watch record per course

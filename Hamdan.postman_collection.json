@@ -1,0 +1,1084 @@
+{
+	"info": {
+		"_postman_id": "67c9184a-a23c-457b-a3ed-30697912847e",
+		"name": "Hamdan",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22168370"
+	},
+	"item": [
+		{
+			"name": "Student",
+			"item": [
+				{
+					"name": "CreateStudent",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "jayfox1h",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "ahmed khallil",
+									"type": "text"
+								},
+								{
+									"key": "phone",
+									"value": "+2499208007584",
+									"type": "text"
+								},
+								{
+									"key": "birthdate",
+									"value": "2/15/2000",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "ahmedmhmedkhl4lil@gmail.comg",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/Users/mac/Documents/Slideshow/AlbedoBase_XL_In_a_breathtaking_scene_where_light_and_darkness_1.jpg",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "https://hamdan-api.onrender.com/api/add-student",
+							"protocol": "https",
+							"host": [
+								"hamdan-api",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"add-student"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NjBhZTQ3ZjRiNTc4MTg1MTNmYmI3YiIsImlhdCI6MTczNDM4OTMxOSwiZXhwIjoxNzM2OTgxMzE5fQ.CtRUpvIQAVjuY9QLNcHP0fTcI-oXZIjtOpKp0qVvWQk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/profile",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "EditProfile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NjBhZTQ3ZjRiNTc4MTg1MTNmYmI3YiIsImlhdCI6MTczNDM4OTMxOSwiZXhwIjoxNzM2OTgxMzE5fQ.CtRUpvIQAVjuY9QLNcHP0fTcI-oXZIjtOpKp0qVvWQk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/Users/mac/Desc/YouTube/video 1/images/AlbedoBase_XL_Image_is_a_digital_logo_design_featuring_a_styli_1.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/profile",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Students List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/students",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"students"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "jayfox5",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "password",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Student",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/students/6760b1468f1f6041e14c49b7",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"students",
+								"6760b1468f1f6041e14c49b7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Block Student",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/students/6760b4332209ca3e3e6dbe2a/block",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"students",
+								"6760b4332209ca3e3e6dbe2a",
+								"block"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unblock Student",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/students/6760b4332209ca3e3e6dbe2a/unblock",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"students",
+								"6760b4332209ca3e3e6dbe2a",
+								"unblock"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Playllst To Cart",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/students/:studentId/playlists/:playlistId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"students",
+								":studentId",
+								"playlists",
+								":playlistId"
+							],
+							"variable": [
+								{
+									"key": "studentId",
+									"value": ""
+								},
+								{
+									"key": "playlistId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Course",
+			"item": [
+				{
+					"name": "CreateNewCourse",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NjBhZTQ3ZjRiNTc4MTg1MTNmYmI3YiIsImlhdCI6MTczNDM4OTMxOSwiZXhwIjoxNzM2OTgxMzE5fQ.CtRUpvIQAVjuY9QLNcHP0fTcI-oXZIjtOpKp0qVvWQk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "playlistId",
+									"value": "6760bdd575d94de4b8b1c7eb",
+									"type": "text"
+								},
+								{
+									"key": "title",
+									"value": "تصميم واجهات المستخدم (UI) باستخدام أداة فيجما دزاين الحلقة 12dtr",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "تعلم تصميم واجهات المستخدم (UI) باستخدام أداة فيجما (Figma)، الأداة الأكثر شهرة وابتكارًا في عالم التصميم. في هذا الكورس، ستتعرف على كيفية إنشاء تصميمات احترافية، تحسين تجربة المستخدم (UX)، والعمل بشكل تعاوني مع فريقك في الوقت الفعلي..تعلم تصميم واجهات المستخدم (UI) باستخدام أداة فيجما (Figma)، الأداة الأكثر شهرة وابتكارًا في عالم التصميم. في هذا الكورس، ستتعرف على كيفية إنشاء تصميمات احترافية، تحسين تجربة المستخدم (UX)d",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "hacker",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/Users/mac/Desc/YouTube/video 1/images/AlbedoBase_XL_Image_is_a_digital_logo_design_featuring_a_styli_1.jpg"
+								},
+								{
+									"key": "video",
+									"type": "file",
+									"src": "/Users/mac/Downloads/videoplayback.mp4"
+								},
+								{
+									"key": "titleFile",
+									"value": "hacker",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/courses",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"courses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch Courses",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/courses",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"courses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch Once Course",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/courses/6760c39eb628ff680ff6e3a8",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"courses",
+								"6760c39eb628ff680ff6e3a8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Course",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "title",
+									"value": "(UI) باستخدام أداة فيجما دزاين الحلقة 12",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/courses/6760c39eb628ff680ff6e3a8",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"courses",
+								"6760c39eb628ff680ff6e3a8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Course",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/courses/6760c39eb628ff680ff6e3a8",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"courses",
+								"6760c39eb628ff680ff6e3a8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch Available Courses",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NjBhZTQ3ZjRiNTc4MTg1MTNmYmI3YiIsImlhdCI6MTczNDM4OTMxOSwiZXhwIjoxNzM2OTgxMzE5fQ.CtRUpvIQAVjuY9QLNcHP0fTcI-oXZIjtOpKp0qVvWQk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/courses-available",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"courses-available"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Lock And Unlock Courses",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NjBhZTQ3ZjRiNTc4MTg1MTNmYmI3YiIsImlhdCI6MTczNDM4OTMxOSwiZXhwIjoxNzM2OTgxMzE5fQ.CtRUpvIQAVjuY9QLNcHP0fTcI-oXZIjtOpKp0qVvWQk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/courses-toggle-lock/676200b73145e0391462501f",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"courses-toggle-lock",
+								"676200b73145e0391462501f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Courses By Playlist",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Playlist",
+			"item": [
+				{
+					"name": "Fetch PlayList",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NjBhZTQ3ZjRiNTc4MTg1MTNmYmI3YiIsImlhdCI6MTczNDM4OTMxOSwiZXhwIjoxNzM2OTgxMzE5fQ.CtRUpvIQAVjuY9QLNcHP0fTcI-oXZIjtOpKp0qVvWQk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/playlist-contents",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"playlist-contents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreatePlayList",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NjBhZTQ3ZjRiNTc4MTg1MTNmYmI3YiIsImlhdCI6MTczNDM4OTMxOSwiZXhwIjoxNzM2OTgxMzE5fQ.CtRUpvIQAVjuY9QLNcHP0fTcI-oXZIjtOpKp0qVvWQk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "تصميم واجهات المستخدم (UI)f",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "تعلم تصميم واجهات المستخدم (UI) باستخدام أداة فيجما (Figma)، الأداة الأكثر شهرة وابتكارًا في عالم التصميم. في هذا الكورس، ستتعرف على كيفية إنشاء تصميمات احترافية، تحسين تجربة المستخدم (UX)، والعمل بشكل تعاوني مع فريقك في الوقت الفعلي..تعلم تصميم واجهات المستخدم (UI) باستخدام أداة فيجما (Figma)، الأداة الأكثر شهرة وابتكارًا في عالم التصميم. في هذا الكورس، ستتعرف على كيفية إنشاء تصميمات احترافية، تحسين تجربة المستخدم (UX)",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/Users/mac/Desc/YouTube/video 1/images/3f2ef05d-5659-462a-8206-042f3b7eb8ce-removebg.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/playlist-contents",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"playlist-contents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get PlayList",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/playlist-contents/6760bdd575d94de4b8b1c7eb",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"playlist-contents",
+								"6760bdd575d94de4b8b1c7eb"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete PlayList",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "title",
+									"value": "دورة تصميم تجربة المستخدم",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/playlist-contents/6760bdd575d94de4b8b1c7eb",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"playlist-contents",
+								"6760bdd575d94de4b8b1c7eb"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete PlayList",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/playlist-contents/6760be9275d94de4b8b1c7f4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"playlist-contents",
+								"6760be9275d94de4b8b1c7f4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Student Playlist ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NjBhZTQ3ZjRiNTc4MTg1MTNmYmI3YiIsImlhdCI6MTczNDM4OTMxOSwiZXhwIjoxNzM2OTgxMzE5fQ.CtRUpvIQAVjuY9QLNcHP0fTcI-oXZIjtOpKp0qVvWQk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/student-playlists/6760b4332209ca3e3e6dbe2a",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"student-playlists",
+								"6760b4332209ca3e3e6dbe2a"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "CourseWatch",
+			"item": [
+				{
+					"name": "StartWatch",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NjBhZTQ3ZjRiNTc4MTg1MTNmYmI3YiIsImlhdCI6MTczNDM4OTMxOSwiZXhwIjoxNzM2OTgxMzE5fQ.CtRUpvIQAVjuY9QLNcHP0fTcI-oXZIjtOpKp0qVvWQk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/courses/676200b73145e0391462501f/watch",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"courses",
+								"676200b73145e0391462501f",
+								"watch"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Watch History",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NjBhZTQ3ZjRiNTc4MTg1MTNmYmI3YiIsImlhdCI6MTczNDM4OTMxOSwiZXhwIjoxNzM2OTgxMzE5fQ.CtRUpvIQAVjuY9QLNcHP0fTcI-oXZIjtOpKp0qVvWQk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/watch-history",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"watch-history"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Dashboard Stars",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NjBhZTQ3ZjRiNTc4MTg1MTNmYmI3YiIsImlhdCI6MTczNDM4OTMxOSwiZXhwIjoxNzM2OTgxMzE5fQ.CtRUpvIQAVjuY9QLNcHP0fTcI-oXZIjtOpKp0qVvWQk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/dashboard-stats",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"dashboard-stats"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Settings",
+			"item": [
+				{
+					"name": "Fetch Settings",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NjBhZTQ3ZjRiNTc4MTg1MTNmYmI3YiIsImlhdCI6MTczNDM4OTMxOSwiZXhwIjoxNzM2OTgxMzE5fQ.CtRUpvIQAVjuY9QLNcHP0fTcI-oXZIjtOpKp0qVvWQk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/settings",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"settings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Settings",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NjBhZTQ3ZjRiNTc4MTg1MTNmYmI3YiIsImlhdCI6MTczNDM4OTMxOSwiZXhwIjoxNzM2OTgxMzE5fQ.CtRUpvIQAVjuY9QLNcHP0fTcI-oXZIjtOpKp0qVvWQk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"supportLinks\":{\n        \"whatsapp\": \"https://web.whatsapp.com/\",\n        \"telegram\": \"https://telegram.com/\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/settings",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"settings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sent Notification",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NjBhZTQ3ZjRiNTc4MTg1MTNmYmI3YiIsImlhdCI6MTczNDM4OTMxOSwiZXhwIjoxNzM2OTgxMzE5fQ.CtRUpvIQAVjuY9QLNcHP0fTcI-oXZIjtOpKp0qVvWQk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"studentIds\":[\n        \"6760b4332209ca3e3e6dbe2a\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/settings/send-welcome",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"settings",
+								"send-welcome"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Student Notification",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NjBhZTQ3ZjRiNTc4MTg1MTNmYmI3YiIsImlhdCI6MTczNDM4OTMxOSwiZXhwIjoxNzM2OTgxMzE5fQ.CtRUpvIQAVjuY9QLNcHP0fTcI-oXZIjtOpKp0qVvWQk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/settings/notifications/6760b4332209ca3e3e6dbe2a",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"settings",
+								"notifications",
+								"6760b4332209ca3e3e6dbe2a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cart",
+			"item": [
+				{
+					"name": "Add to Cart",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NjBhZTQ3ZjRiNTc4MTg1MTNmYmI3YiIsImlhdCI6MTczNDM4OTMxOSwiZXhwIjoxNzM2OTgxMzE5fQ.CtRUpvIQAVjuY9QLNcHP0fTcI-oXZIjtOpKp0qVvWQk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/playlists/6763412e7675cdaacf5085ca/cart",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"playlists",
+								"6763412e7675cdaacf5085ca",
+								"cart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "View Cart",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NjBhZTQ3ZjRiNTc4MTg1MTNmYmI3YiIsImlhdCI6MTczNDM4OTMxOSwiZXhwIjoxNzM2OTgxMzE5fQ.CtRUpvIQAVjuY9QLNcHP0fTcI-oXZIjtOpKp0qVvWQk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/student/cart",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"student",
+								"cart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Cart Item",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NjBhZTQ3ZjRiNTc4MTg1MTNmYmI3YiIsImlhdCI6MTczNDM4OTMxOSwiZXhwIjoxNzM2OTgxMzE5fQ.CtRUpvIQAVjuY9QLNcHP0fTcI-oXZIjtOpKp0qVvWQk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/playlists/6763412e7675cdaacf5085ca/cart",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"playlists",
+								"6763412e7675cdaacf5085ca",
+								"cart"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
