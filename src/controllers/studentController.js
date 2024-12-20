@@ -77,7 +77,7 @@ exports.register = async (req, res) => {
       password,
       name,
       phone,
-      birthdate,
+      birthdate: new Date(birthdate),
       email,
       courseName,
       otherFields: new Map(Object.entries(otherFields || {}))
