@@ -90,10 +90,11 @@ exports.register = async (req, res) => {
     await student.save();
     
     const token = generateToken(student._id);
+    const studentJson = student.toJSON();
     res.status(201).json({
       success: true,
       data: {
-        _id: student._id,
+        id: studentJson.id,
         username: student.username,
         name: student.name,
         email: student.email,
@@ -156,13 +157,15 @@ exports.login = async (req, res) => {
     }
 
     const token = generateToken(student._id);
+    const studentJson = student.toJSON();
     res.json({
       success: true,
       data: {
-        _id: student._id,
+        id: studentJson.id,
         username: student.username,
         name: student.name,
         email: student.email,
+        image: process.env.HOST_IMAGE +  student.image,
         token
       }
     });
@@ -182,7 +185,7 @@ exports.getProfile = async (req, res) => {
   try {
     const student = req.student;
     const response = {
-      _id: student._id,
+      id: student.id,
       username: student.username,
       name: student.name,
       phone: student.phone,
@@ -239,7 +242,7 @@ exports.updateProfile = async (req, res) => {
     await student.save();
     
     const response = {
-      _id: student._id,
+      id: student.id,
       username: student.username,
       name: student.name,
       phone: student.phone,
@@ -283,7 +286,7 @@ exports.blockStudent = async (req, res) => {
       success: true,
       message: 'Student blocked successfully',
       data: {
-        _id: student._id,
+        id: student.id,
         username: student.username,
         name: student.name,
         isBlocked: student.isBlocked
@@ -318,7 +321,7 @@ exports.unblockStudent = async (req, res) => {
       success: true,
       message: 'Student unblocked successfully',
       data: {
-        _id: student._id,
+        id: student.id,
         username: student.username,
         name: student.name,
         isBlocked: student.isBlocked
@@ -422,12 +425,12 @@ exports.addToPlaylist = async (req, res) => {
       message: 'Student added to playlist successfully',
       data: {
         student: {
-          id: student._id,
+          id: student.id,
           name: student.name,
           email: student.email
         },
         playlist: {
-          id: playlist._id,
+          id: playlist.id,
           title: playlist.title,
           description: playlist.description,
           totalStudents: playlist.students.length
@@ -502,7 +505,7 @@ exports.addMultipleToPlaylist = async (req, res) => {
       message: `${newStudents.length} students added to playlist successfully`,
       data: {
         playlist: {
-          id: playlist._id,
+          id: playlist.id,
           title: playlist.title,
           description: playlist.description,
           totalStudents: playlist.students.length
@@ -510,14 +513,14 @@ exports.addMultipleToPlaylist = async (req, res) => {
         addedStudents: students
           .filter(s => newStudents.includes(s._id.toString()))
           .map(s => ({
-            id: s._id,
+            id: s.id,
             name: s.name,
             email: s.email
           })),
         skippedStudents: students
           .filter(s => !newStudents.includes(s._id.toString()))
           .map(s => ({
-            id: s._id,
+            id: s.id,
             name: s.name,
             email: s.email
           }))
