@@ -26,7 +26,7 @@ const studentSchema = new mongoose.Schema({
   },
   birthdate: {
     type: Date,
-    required: true
+    required: false
   },
   email: {
     type: String,

@@ -38,14 +38,13 @@ exports.register = async (req, res) => {
       password,
       name,
       phone,
-      birthdate,
       email,
       courseName,
       otherFields
     } = req.body;
 
     // Validate required fields
-    const requiredFields = ['username', 'password', 'name', 'phone', 'birthdate', 'email'];
+    const requiredFields = ['username', 'password', 'name', 'phone', 'email'];
     const missingFields = requiredFields.filter(field => !req.body[field]);
     
     if (missingFields.length > 0) {
@@ -77,7 +76,6 @@ exports.register = async (req, res) => {
       password,
       name,
       phone,
-      birthdate: new Date(birthdate),
       email,
       courseName,
       otherFields: new Map(Object.entries(otherFields || {}))
