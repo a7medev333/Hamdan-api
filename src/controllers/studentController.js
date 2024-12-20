@@ -52,7 +52,8 @@ exports.register = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Missing required fields',
-        missingFields
+        missingFields,
+        data:{}
       });
     }
 
@@ -65,7 +66,8 @@ exports.register = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: existingStudent.username === username ? 
-          'Username already exists' : 'Email already exists'
+          'Username already exists' : 'Email already exists',
+          data:{}
       });
     }
 
@@ -106,7 +108,8 @@ exports.register = async (req, res) => {
     res.status(400).json({
       success: false,
       message: 'Error registering student',
-      error: error.message
+      error: error.message,
+      data:{}
     });
   }
 };
