@@ -2,7 +2,8 @@ const Course = require('../models/course');
 const fs = require('fs').promises;
 const path = require('path');
 const { getVideoDurationInSeconds } = require('get-video-duration');
-const PlaylistContent = require('../models/playlistContent'); // Assuming PlaylistContent model is defined in this file
+const PlaylistContent = require('../models/playlistContent');
+const CourseWatch = require('../models/courseWatch');
 
 // Create new course
 exports.createCourse = async (req, res) => {
@@ -405,11 +406,42 @@ exports.getCoursesByPlaylist = async (req, res) => {
       });
     }
 
+    // Get watching counts for each course
+    const now = new Date();
+    const twentyFourHoursAgo = new Date(now - 24 * 60 * 60 * 1000);
+
+    const watchingCounts = await CourseWatch.aggregate([
+      {
+        $match: {
+          course: { $in: courses.map(c => c._id) },
+          watchedAt: { $gte: twentyFourHoursAgo }
+        }
+      },
+      {
+        $group: {
+          _id: '$course',
+          watchingCount: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // Create a map of course ID to watching count
+    const watchingCountMap = watchingCounts.reduce((acc, curr) => {
+      acc[curr._id.toString()] = curr.watchingCount;
+      return acc;
+    }, {});
+
+    // Add watching count to each course
+    const coursesWithWatchCount = courses.map(course => ({
+      ...course.toObject(),
+      watchingCount: watchingCountMap[course._id.toString()] || 0
+    }));
+
     res.json({
       success: true,
       data: {
         playlist,
-        courses,
+        courses: coursesWithWatchCount,
         totalCourses: courses.length
       }
     });
