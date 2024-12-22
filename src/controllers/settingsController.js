@@ -59,6 +59,44 @@ exports.updateSettings = async (req, res) => {
   }
 };
 
+// Update support links
+exports.updateSupportLinks = async (req, res) => {
+  try {
+    const { supportLinks } = req.body;
+    
+    if (!supportLinks) {
+      return res.status(400).json({
+        success: false,
+        message: 'Support links are required'
+      });
+    }
+
+    // Get existing settings or create new one
+    let settings = await Settings.getInstance();
+    
+    // Update support links
+    settings.supportLinks = {
+      ...settings.supportLinks,
+      ...supportLinks
+    };
+    
+    settings.updatedAt = new Date();
+    await settings.save();
+
+    res.json({
+      success: true,
+      message: 'Support links updated successfully',
+      data: settings
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error updating support links',
+      error: error.message
+    });
+  }
+};
+
 // Send welcome message to multiple students
 exports.sendWelcomeMessage = async (req, res) => {
   try {

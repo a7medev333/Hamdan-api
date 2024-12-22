@@ -33,6 +33,7 @@ router.use(auth);
 // Student management
 router.get('/profile', studentController.getProfile);
 router.put('/profile', upload.single('image'), studentController.updateProfile);
+router.put('/students/:id', studentController.updateStudent);
 router.post('/students/:id/block', studentController.blockStudent);
 router.post('/students/:id/unblock', studentController.unblockStudent);
 router.delete('/students/:id', studentController.deleteStudent);

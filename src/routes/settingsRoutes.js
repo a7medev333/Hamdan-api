@@ -15,6 +15,7 @@ router.use(auth);
 
 // Settings management
 router.put('/settings', settingsController.updateSettings);
+router.put('/settings/support-links', settingsController.updateSupportLinks);
 
 // Welcome messages
 router.post('/settings/send-welcome', settingsController.sendWelcomeMessage);

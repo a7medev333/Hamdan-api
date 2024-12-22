@@ -266,6 +266,43 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
+// Update student by ID
+exports.updateStudent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    // Remove password from update data if it exists
+    delete updateData.password;
+
+    // Find student and update
+    const student = await Student.findByIdAndUpdate(
+      id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Student updated successfully',
+      data: student
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: 'Error updating student',
+      error: error.message
+    });
+  }
+};
+
 // Block student
 exports.blockStudent = async (req, res) => {
   try {
