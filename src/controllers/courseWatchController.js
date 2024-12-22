@@ -200,6 +200,11 @@ exports.getDashboardStats = async (req, res) => {
 
     // Calculate students not watching
     const notWatchingCount = totalStudents - activeWatchingCount;
+    
+    // Calculate percentage of students not watching
+    const notWatchingPercentage = totalStudents > 0 
+      ? ((notWatchingCount / totalStudents) * 100).toFixed(2)
+      : 0;
 
     // Get top watched courses
     const topWatchedCourses = await CourseWatch.aggregate([
@@ -306,6 +311,7 @@ exports.getDashboardStats = async (req, res) => {
       data: {
         activeWatchingCount,
         notWatchingCount,
+        notWatchingPercentage,
         totalStudents,
         topWatchedCourses,
         topStudents,
