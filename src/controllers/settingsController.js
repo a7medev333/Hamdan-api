@@ -251,6 +251,107 @@ exports.sendWelcomeMessageByPlaylist = async (req, res) => {
   }
 };
 
+// Send welcome message to students by multiple playlist IDs
+exports.sendWelcomeMessageByPlaylists = async (req, res) => {
+  try {
+    const { playlistIds } = req.body;
+    const { customMessage } = req.body;
+
+    if (!Array.isArray(playlistIds) || playlistIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide an array of playlist IDs'
+      });
+    }
+
+    // Verify playlists exist
+    const playlists = await PlaylistContent.find({
+      _id: { $in: playlistIds }
+    });
+
+    if (playlists.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No playlists found'
+      });
+    }
+
+    // Get all unique student IDs from all playlists
+    const studentIds = [...new Set(
+      playlists.reduce((acc, playlist) => {
+        return acc.concat(playlist.students || []);
+      }, [])
+    )];
+
+    if (studentIds.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No students found in these playlists'
+      });
+    }
+
+    // Get all students
+    const students = await Student.find({ 
+      _id: { $in: studentIds }
+    });
+
+    // Get settings for default welcome message
+    const settings = await Settings.getInstance();
+    const message = customMessage || settings.welcomeMessage;
+
+    // Create welcome notifications for all students
+    const notifications = await Notification.insertMany(
+      students.map(student => ({
+        student: student._id,
+        message,
+        type: 'welcome'
+      }))
+    );
+
+    // Send push notifications to student devices
+    const fcmTokens = students.map(student => student.fcmToken).filter(token => token);
+    if (fcmTokens.length > 0) {
+      await notificationService.sendToMultipleDevices(
+        fcmTokens,
+        'Welcome to Playlists',
+        message,
+        {
+          type: 'welcome',
+          playlistIds: playlistIds,
+          playlistTitles: playlists.map(p => p.title),
+          timestamp: new Date().toISOString()
+        }
+      );
+    }
+
+    res.status(201).json({
+      success: true,
+      message: `Welcome messages sent to ${students.length} students from ${playlists.length} playlists`,
+      data: {
+        notifications,
+        message,
+        playlists: playlists.map(p => ({
+          id: p._id,
+          title: p.title,
+          studentCount: (p.students || []).length
+        })),
+        sentTo: students.map(s => ({
+          id: s._id,
+          name: s.name,
+          email: s.email,
+          pushNotificationSent: !!s.fcmToken
+        }))
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error sending welcome messages',
+      error: error.message
+    });
+  }
+};
+
 // Get notifications for a specific student
 exports.getStudentNotifications = async (req, res) => {
   try {

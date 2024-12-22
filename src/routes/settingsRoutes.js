@@ -20,6 +20,7 @@ router.put('/settings/support-links', settingsController.updateSupportLinks);
 // Welcome messages
 router.post('/settings/send-welcome', settingsController.sendWelcomeMessage);
 router.post('/settings/send-welcome/playlist/:playlistId', settingsController.sendWelcomeMessageByPlaylist);
+router.post('/settings/send-welcome/playlists', settingsController.sendWelcomeMessageByPlaylists);
 
 // Get student notifications
 router.get('/settings/notifications/:studentId', settingsController.getStudentNotifications);
