@@ -634,3 +634,56 @@ exports.deleteAccount = async (req, res) => {
     });
   }
 };
+
+// Change password
+exports.changePassword = async (req, res) => {
+  try {
+    const student = req.student;
+    const { currentPassword, newPassword } = req.body;
+
+    // Validate required fields
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Current password and new password are required',
+        data: {}
+      });
+    }
+
+    // Verify current password
+    const isPasswordValid = await student.comparePassword(currentPassword);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: 'Current password is incorrect',
+        data: {}
+      });
+    }
+
+    // Validate new password
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be at least 6 characters long',
+        data: {}
+      });
+    }
+
+    // Update password
+    student.password = newPassword;
+    await student.save();
+
+    res.json({
+      success: true,
+      message: 'Password changed successfully',
+      data: {}
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error changing password',
+      error: error.message,
+      data: {}
+    });
+  }
+};

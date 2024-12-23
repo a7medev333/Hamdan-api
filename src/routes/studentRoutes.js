@@ -38,6 +38,7 @@ router.post('/students/:id/block', studentController.blockStudent);
 router.post('/students/:id/unblock', studentController.unblockStudent);
 router.delete('/students/:id', studentController.deleteStudent);
 router.delete('/delete-account', studentController.deleteAccount);
+router.post('/change-password', studentController.changePassword);
 
 // Playlist management
 router.post('/students/:studentId/playlists/:playlistId', studentController.addToPlaylist);
