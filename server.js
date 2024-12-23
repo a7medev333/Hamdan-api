@@ -8,6 +8,7 @@ const courseRoutes = require('./src/routes/courseRoutes');
 const playlistContentRoutes = require('./src/routes/playlistContentRoutes');
 const courseWatchRoutes = require('./src/routes/courseWatchRoutes');
 const settingsRoutes = require('./src/routes/settingsRoutes');
+const notificationRoutes = require('./src/routes/notificationRoutes');
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/api', courseRoutes);
 app.use('/api', playlistContentRoutes);
 app.use("/api", courseWatchRoutes);
 app.use("/api", settingsRoutes);
+app.use("/api", notificationRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
