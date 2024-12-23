@@ -16,10 +16,17 @@ exports.listStudents = async (req, res) => {
       password: 0 // Exclude password field
     });
 
+    // Add server URL to image paths
+    const studentsWithFullImageUrls = students.map(student => {
+      const studentObj = student.toObject();
+      studentObj.image = studentObj.image ? process.env.HOST_IMAGE + studentObj.image : '';
+      return studentObj;
+    });
+
     res.json({
       success: true,
       message: 'Students retrieved successfully',
-      data: students
+      data: studentsWithFullImageUrls
     });
   } catch (error) {
     res.status(400).json({
@@ -82,8 +89,7 @@ exports.register = async (req, res) => {
     });
     
     if (req.file && req.file.path) {
-      var image = process.env.HOST_IMAGE + req.file.path;
-      student.image =  image;
+      student.image = req.file.path;
     }
 
     await student.save();
@@ -97,7 +103,7 @@ exports.register = async (req, res) => {
         username: student.username,
         name: student.name,
         email: student.email,
-        image: student.image,
+        image: student.image ? process.env.HOST_IMAGE + student.image : '',
         token
       }
     });
@@ -198,7 +204,7 @@ exports.getProfile = async (req, res) => {
       phone: student.phone,
       birthdate: student.birthdate,
       email: student.email,
-      image: student.image,
+      image: student.image ? process.env.HOST_IMAGE + student.image : '',
       courseName: student.courseName,
       otherFields: Object.fromEntries(student.otherFields),
       createdAt: student.createdAt
@@ -208,9 +214,9 @@ exports.getProfile = async (req, res) => {
       data: response
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(400).json({
       success: false,
-      message: 'Error fetching profile',
+      message: 'Error retrieving profile',
       error: error.message
     });
   }
@@ -231,7 +237,8 @@ exports.updateProfile = async (req, res) => {
     if (req.file) {
       if (student.image) {
         try {
-          await fs.unlink(student.image);
+          const oldImagePath = student.image.replace(process.env.HOST_IMAGE, '');
+          await fs.unlink(oldImagePath);
         } catch (error) {
           console.error('Error deleting old image:', error);
         }
@@ -255,7 +262,7 @@ exports.updateProfile = async (req, res) => {
       phone: student.phone,
       birthdate: student.birthdate,
       email: student.email,
-      image: student.image,
+      image: student.image ? process.env.HOST_IMAGE + student.image : '',
       courseName: student.courseName,
       otherFields: Object.fromEntries(student.otherFields),
       createdAt: student.createdAt
