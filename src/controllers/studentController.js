@@ -4,6 +4,50 @@ const fs = require('fs').promises;
 const path = require('path');
 const PlaylistContent = require('../models/playlistContent');
 
+// Helper function to calculate age
+const calculateAge = (birthdate) => {
+  if (!birthdate) return null;
+  const today = new Date();
+  const birth = new Date(birthdate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age;
+};
+
+// Helper function to format time ago
+const timeAgo = (date) => {
+  if (!date) return '';
+  
+  const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+  
+  let interval = Math.floor(seconds / 31536000);
+  if (interval > 1) return interval + ' years ago';
+  if (interval === 1) return '1 year ago';
+  
+  interval = Math.floor(seconds / 2592000);
+  if (interval > 1) return interval + ' months ago';
+  if (interval === 1) return '1 month ago';
+  
+  interval = Math.floor(seconds / 86400);
+  if (interval > 1) return interval + ' days ago';
+  if (interval === 1) return '1 day ago';
+  
+  interval = Math.floor(seconds / 3600);
+  if (interval > 1) return interval + ' hours ago';
+  if (interval === 1) return '1 hour ago';
+  
+  interval = Math.floor(seconds / 60);
+  if (interval > 1) return interval + ' minutes ago';
+  if (interval === 1) return '1 minute ago';
+  
+  if (seconds < 10) return 'just now';
+  
+  return Math.floor(seconds) + ' seconds ago';
+};
+
 // Generate JWT Token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
@@ -16,17 +60,20 @@ exports.listStudents = async (req, res) => {
       password: 0 // Exclude password field
     });
 
-    // Add server URL to image paths
-    const studentsWithFullImageUrls = students.map(student => {
+    // Add server URL to image paths and calculate ages
+    const studentsWithFullInfo = students.map(student => {
       const studentObj = student.toObject();
       studentObj.image = studentObj.image ? process.env.HOST_IMAGE + studentObj.image : '';
+      studentObj.age = calculateAge(studentObj.birthdate);
+      studentObj.createdAgo = timeAgo(studentObj.createdAt);
+      studentObj.updatedAgo = timeAgo(studentObj.updatedAt);
       return studentObj;
     });
 
     res.json({
       success: true,
       message: 'Students retrieved successfully',
-      data: studentsWithFullImageUrls
+      data: studentsWithFullInfo
     });
   } catch (error) {
     res.status(400).json({
@@ -203,11 +250,15 @@ exports.getProfile = async (req, res) => {
       name: student.name,
       phone: student.phone,
       birthdate: student.birthdate,
+      age: calculateAge(student.birthdate),
       email: student.email,
       image: student.image ? process.env.HOST_IMAGE + student.image : '',
       courseName: student.courseName,
       otherFields: Object.fromEntries(student.otherFields),
-      createdAt: student.createdAt
+      createdAt: student.createdAt,
+      createdAgo: timeAgo(student.createdAt),
+      updatedAt: student.updatedAt,
+      updatedAgo: timeAgo(student.updatedAt)
     };
     res.json({
       success: true,
@@ -261,11 +312,15 @@ exports.updateProfile = async (req, res) => {
       name: student.name,
       phone: student.phone,
       birthdate: student.birthdate,
+      age: calculateAge(student.birthdate),
       email: student.email,
       image: student.image ? process.env.HOST_IMAGE + student.image : '',
       courseName: student.courseName,
       otherFields: Object.fromEntries(student.otherFields),
-      createdAt: student.createdAt
+      createdAt: student.createdAt,
+      createdAgo: timeAgo(student.createdAt),
+      updatedAt: student.updatedAt,
+      updatedAgo: timeAgo(student.updatedAt)
     };
     res.json({
       success: true,

@@ -4,6 +4,37 @@ const Student = require('../models/student');
 const PlaylistContent = require('../models/playlistContent');
 const notificationService = require('../services/notificationService');
 
+// Helper function to format time ago (same as in studentController)
+const timeAgo = (date) => {
+  if (!date) return '';
+  
+  const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+  
+  let interval = Math.floor(seconds / 31536000);
+  if (interval > 1) return interval + ' years ago';
+  if (interval === 1) return '1 year ago';
+  
+  interval = Math.floor(seconds / 2592000);
+  if (interval > 1) return interval + ' months ago';
+  if (interval === 1) return '1 month ago';
+  
+  interval = Math.floor(seconds / 86400);
+  if (interval > 1) return interval + ' days ago';
+  if (interval === 1) return '1 day ago';
+  
+  interval = Math.floor(seconds / 3600);
+  if (interval > 1) return interval + ' hours ago';
+  if (interval === 1) return '1 hour ago';
+  
+  interval = Math.floor(seconds / 60);
+  if (interval > 1) return interval + ' minutes ago';
+  if (interval === 1) return '1 minute ago';
+  
+  if (seconds < 10) return 'just now';
+  
+  return Math.floor(seconds) + ' seconds ago';
+};
+
 // Get settings
 exports.getSettings = async (req, res) => {
   try {
@@ -382,10 +413,17 @@ exports.getStudentNotifications = async (req, res) => {
       { $set: { isRead: true } }
     );
 
+    // Add time ago to notifications
+    const notificationsWithTimeAgo = notifications.map(notification => {
+      const notificationObj = notification.toObject();
+      notificationObj.createdAgo = timeAgo(notificationObj.createdAt);
+      return notificationObj;
+    });
+
     res.json({
       success: true,
       data: {
-        notifications,
+        notifications: notificationsWithTimeAgo,
         pagination: {
           currentPage: parseInt(page),
           totalPages: Math.ceil(total / limit),
@@ -408,19 +446,26 @@ exports.getStudentNotifications = async (req, res) => {
   }
 };
 
-
+// Get notifications for authenticated user
 exports.getMyNotifications = async (req, res) => {
   try {
-    const studentId = req.student.id; // Assuming auth middleware sets req.user
+    const studentId = req.student.id;
 
     const notifications = await Notification.find({ student: studentId })
-      .sort({ createdAt: -1 }) // Sort by newest first
+      .sort({ createdAt: -1 })
       .select('-__v');
+
+    // Add time ago to notifications
+    const notificationsWithTimeAgo = notifications.map(notification => {
+      const notificationObj = notification.toObject();
+      notificationObj.createdAgo = timeAgo(notificationObj.createdAt);
+      return notificationObj;
+    });
 
     res.status(200).json({
       success: true,
       message: 'Notifications retrieved successfully',
-      data: notifications
+      data: notificationsWithTimeAgo
     });
   } catch (error) {
     res.status(500).json({
