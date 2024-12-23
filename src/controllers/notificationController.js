@@ -2,7 +2,7 @@ const Notification = require('../models/notification');
 const Student = require('../models/student');
 
 // Send notification to multiple students
-exports.sendNotification = async (req, res) => {
+module.exports.sendNotification = async (req, res) => {
   try {
     const { studentIds, message, type = 'general' } = req.body;
 
@@ -53,7 +53,7 @@ exports.sendNotification = async (req, res) => {
 };
 
 // Get notifications for authenticated user
-exports.getMyNotifications = async (req, res) => {
+module.exports.getMyNotifications = async (req, res) => {
   try {
     const studentId = req.user.id; // Assuming auth middleware sets req.user
 
@@ -76,7 +76,7 @@ exports.getMyNotifications = async (req, res) => {
 };
 
 // Mark notification as read
-exports.markAsRead = async (req, res) => {
+module.exports.markAsRead = async (req, res) => {
   try {
     const { notificationId } = req.params;
     const studentId = req.user.id;

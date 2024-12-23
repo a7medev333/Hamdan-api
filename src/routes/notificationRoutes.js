@@ -13,3 +13,4 @@ router.patch('/:notificationId/mark-read', auth, markAsRead);
 router.post('/send', auth, sendNotification);
 
 module.exports = router;
+
