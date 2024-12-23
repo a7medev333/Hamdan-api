@@ -411,7 +411,7 @@ exports.getStudentNotifications = async (req, res) => {
 
 exports.getMyNotifications = async (req, res) => {
   try {
-    const studentId = req.user.id; // Assuming auth middleware sets req.user
+    const studentId = req.student.id; // Assuming auth middleware sets req.user
 
     const notifications = await Notification.find({ student: studentId })
       .sort({ createdAt: -1 }) // Sort by newest first
