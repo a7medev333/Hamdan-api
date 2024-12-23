@@ -639,23 +639,13 @@ exports.deleteAccount = async (req, res) => {
 exports.changePassword = async (req, res) => {
   try {
     const student = req.student;
-    const { currentPassword, newPassword } = req.body;
+    const { newPassword } = req.body;
 
     // Validate required fields
-    if (!currentPassword || !newPassword) {
+    if (!newPassword) {
       return res.status(400).json({
         success: false,
-        message: 'Current password and new password are required',
-        data: {}
-      });
-    }
-
-    // Verify current password
-    const isPasswordValid = await student.comparePassword(currentPassword);
-    if (!isPasswordValid) {
-      return res.status(401).json({
-        success: false,
-        message: 'Current password is incorrect',
+        message: 'New password is required',
         data: {}
       });
     }
