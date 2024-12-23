@@ -578,3 +578,52 @@ exports.addMultipleToPlaylist = async (req, res) => {
     });
   }
 };
+
+// Delete own account
+exports.deleteAccount = async (req, res) => {
+  try {
+    const studentId = req.user.id; // Get ID from auth token
+
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: 'Account not found'
+      });
+    }
+
+    // Delete student's image if it exists
+    if (student.image) {
+      try {
+        await fs.unlink(student.image);
+      } catch (error) {
+        console.error('Error deleting student image:', error);
+      }
+    }
+
+    // Delete student's playlist contents
+    await PlaylistContent.deleteMany({ student: studentId });
+
+    // Delete student's notifications
+    const Notification = require('../models/notification');
+    await Notification.deleteMany({ student: studentId });
+
+    // Delete student's course watches
+    const CourseWatch = require('../models/courseWatch');
+    await CourseWatch.deleteMany({ student: studentId });
+
+    // Finally delete the student account
+    await Student.findByIdAndDelete(studentId);
+
+    res.json({
+      success: true,
+      message: 'Your account has been deleted successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting account',
+      error: error.message
+    });
+  }
+};
