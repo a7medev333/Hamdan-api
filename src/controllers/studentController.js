@@ -117,13 +117,14 @@ exports.login = async (req, res) => {
     console.log('Login request body:', req.body);
     console.log('Content-Type:', req.headers['content-type']);
 
-    let { username, password } = req.body;
+    let { username, email, password } = req.body;
 
     // Try to parse the body if it's a string
     if (typeof req.body === 'string') {
       try {
         const parsedBody = JSON.parse(req.body);
         username = parsedBody.username;
+        email = parsedBody.email;
         password = parsedBody.password;
       } catch (e) {
         console.error('Error parsing request body:', e);
@@ -131,20 +132,26 @@ exports.login = async (req, res) => {
     }
 
     // Validate required fields
-    if (!username || !password) {
+    if ((!username && !email) || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide username and password',
+        message: 'Please provide either username or email, and password',
         receivedData: req.body
       });
     }
 
-    const student = await Student.findOne({ username });
+    // Find student by username or email
+    const student = await Student.findOne({
+      $or: [
+        { username: username || '' },
+        { email: (email || '').toLowerCase() }
+      ]
+    });
 
     if (!student || !(await student.comparePassword(password))) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid username or password'
+        message: 'Invalid credentials'
       });
     }
 
@@ -165,7 +172,7 @@ exports.login = async (req, res) => {
         username: student.username,
         name: student.name,
         email: student.email,
-        image: process.env.HOST_IMAGE +  student.image,
+        image: process.env.HOST_IMAGE + student.image,
         token
       }
     });
