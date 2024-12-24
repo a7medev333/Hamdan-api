@@ -645,6 +645,7 @@ exports.addMultipleToPlaylist = async (req, res) => {
 exports.deleteAccount = async (req, res) => {
   try {
     const student = req.student;
+    const studentId = student._id;
 
     // const student = await Student.findById(studentId);
     if (!student) {
