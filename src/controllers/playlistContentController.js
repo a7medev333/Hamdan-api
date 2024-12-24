@@ -323,7 +323,7 @@ exports.getCart = async (req, res) => {
 
     // Get student with populated cart
     const student = await Student.findById(studentId)
-      .populate('cart', 'title description image videoLength');
+      .populate('cart', 'title description image videoLength courses');
 
     if (!student) {
       return res.status(404).json({
@@ -331,6 +331,17 @@ exports.getCart = async (req, res) => {
         message: 'Student not found'
       });
     }
+
+    // Format cart items and add course count
+    const formattedCart = student.cart.map(item => {
+      const cartItem = item.toObject();
+      return {
+        ...cartItem,
+        id: cartItem._id,
+        image: cartItem.image ? process.env.HOST_IMAGE + cartItem.image : '',
+        totalCourses: cartItem.courses ? cartItem.courses.length : 0
+      };
+    });
 
     res.json({
       success: true,
@@ -340,7 +351,7 @@ exports.getCart = async (req, res) => {
           name: student.name,
           email: student.email
         },
-        cart: student.cart || []
+        cart: formattedCart
       }
     });
   } catch (error) {
@@ -351,4 +362,3 @@ exports.getCart = async (req, res) => {
     });
   }
 };
-
