@@ -329,3 +329,39 @@ exports.getDashboardStats = async (req, res) => {
     });
   }
 };
+
+// Get last watched course
+exports.getLastWatchedCourse = async (req, res) => {
+  try {
+    const studentId = req.student._id;
+
+    const lastWatchedCourse = await CourseWatch.findOne({ student: studentId })
+      .sort({ watchedAt: -1 })
+      .populate('course')
+      .lean();
+
+    if (!lastWatchedCourse) {
+      return res.status(200).json({
+        success: true,
+        data: null,
+        message: 'No courses watched yet'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        course: lastWatchedCourse.course,
+        watchDuration: lastWatchedCourse.watchDuration,
+        watchedAt: lastWatchedCourse.watchedAt,
+        progress: lastWatchedCourse.progress
+      }
+    });
+  } catch (error) {
+    console.error('Error getting last watched course:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error getting last watched course'
+    });
+  }
+};

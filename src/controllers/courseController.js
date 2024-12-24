@@ -388,6 +388,7 @@ exports.toggleCourseLock = async (req, res) => {
 exports.getCoursesByPlaylist = async (req, res) => {
   try {
     const { playlistId } = req.params;
+    const studentId = req.student?._id; // Get student ID if authenticated
     
     // Find all courses for this playlist
     const courses = await Course.find({ playlistId })
@@ -403,6 +404,18 @@ exports.getCoursesByPlaylist = async (req, res) => {
       });
     }
 
+    // Get watched courses for the student if authenticated
+    let watchedCourses = [];
+    if (studentId) {
+      watchedCourses = await CourseWatch.find({
+        student: studentId,
+        course: { $in: courses.map(c => c._id) }
+      }).select('course');
+    }
+
+    // Create a Set of watched course IDs for faster lookup
+    const watchedCourseIds = new Set(watchedCourses.map(w => w.course.toString()));
+
     // Format courses with all fields
     const formattedCourses = courses.map(course => {
       const courseObj = course.toObject();
@@ -416,6 +429,7 @@ exports.getCoursesByPlaylist = async (req, res) => {
         duration: courseObj.duration,
         playlistId: courseObj.playlistId,
         isLocked: courseObj.isLocked,
+        isWatched: studentId ? watchedCourseIds.has(courseObj._id.toString()) : false,
         socialMedia: {
           whatsapp: courseObj.socialMedia?.whatsapp || null,
           telegram: courseObj.socialMedia?.telegram || null
