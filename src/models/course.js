@@ -51,11 +51,24 @@ const courseSchema = new mongoose.Schema({
       trim: true
     }
   },
+  fields: [{
+    key: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    value: {
+      type: String,
+      required: true,
+      trim: true
+    }
+  }],
   createdAt: {
     type: Date,
     default: Date.now
   }
 }, {
+  timestamps: true,
   toJSON: {
     transform: function(doc, ret) {
       ret.id = ret._id;

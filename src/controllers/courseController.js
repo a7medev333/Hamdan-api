@@ -14,7 +14,8 @@ exports.createCourse = async (req, res) => {
       description,
       name,
       playlistId,
-      socialMedia
+      socialMedia,
+      fields
     } = req.body;
 
     // Validate required fields
@@ -87,7 +88,8 @@ exports.createCourse = async (req, res) => {
       videoLink,
       duration,
       playlistId,
-      socialMedia: socialMedia || {}
+      socialMedia: socialMedia || {},
+      fields: Array.isArray(fields) ? fields : []
     });
 
     await course.save();
@@ -174,37 +176,26 @@ exports.getCourse = async (req, res) => {
 // Update course
 exports.updateCourse = async (req, res) => {
   try {
-    const courseId = req.params.id;
+    const { id } = req.params;
     const {
       title,
       description,
       name,
       playlistId,
-      socialMedia
+      socialMedia,
+      fields
     } = req.body;
 
-    let course = await Course.findById(courseId);
+    // Find course by id
+    const course = await Course.findById(id);
     if (!course) {
-      // Clean up uploaded files
-      if (req.files) {
-        for (const fileArray of Object.values(req.files)) {
-          for (const file of fileArray) {
-            try {
-              await fs.unlink(file.path);
-            } catch (unlinkError) {
-              console.error('Error deleting file:', unlinkError);
-            }
-          }
-        }
-      }
-
       return res.status(404).json({
         success: false,
         message: 'Course not found'
       });
     }
 
-    // Check if new title exists (if title is being changed)
+    // If title is being updated, check if it already exists
     if (title && title !== course.title) {
       const existingCourse = await Course.findOne({ title });
       if (existingCourse) {
@@ -214,6 +205,14 @@ exports.updateCourse = async (req, res) => {
         });
       }
     }
+
+    // Update basic fields if provided
+    if (title) course.title = title;
+    if (description) course.description = description;
+    if (name) course.name = name;
+    if (playlistId) course.playlistId = playlistId;
+    if (socialMedia) course.socialMedia = socialMedia;
+    if (Array.isArray(fields)) course.fields = fields;
 
     // Handle file updates
     const updates = {
@@ -263,7 +262,7 @@ exports.updateCourse = async (req, res) => {
 
     // Update course
     course = await Course.findByIdAndUpdate(
-      courseId,
+      id,
       { $set: updates },
       { new: true }
     ).populate('playlistId', 'title description image');
@@ -430,6 +429,7 @@ exports.getCoursesByPlaylist = async (req, res) => {
         playlistId: courseObj.playlistId,
         isLocked: courseObj.isLocked,
         isWatched: studentId ? watchedCourseIds.has(courseObj._id.toString()) : false,
+        fields: courseObj.fields || [],
         socialMedia: {
           whatsapp: courseObj.socialMedia?.whatsapp || null,
           telegram: courseObj.socialMedia?.telegram || null
