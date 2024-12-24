@@ -366,19 +366,6 @@ exports.getPlaylistCourses = async (req, res) => {
     const { playlistId } = req.params;
     const studentId = req.student._id;
 
-    // Verify playlist exists and student has access
-    const playlist = await PlaylistContent.findOne({
-      _id: playlistId,
-      student: studentId
-    });
-
-    if (!playlist) {
-      return res.status(404).json({
-        success: false,
-        message: 'Playlist not found or access denied'
-      });
-    }
-
     // Get courses for this playlist with watch status
     const courses = await Course.find({ playlistId })
       .sort({ createdAt: -1 });
