@@ -334,18 +334,45 @@ exports.getDashboardStats = async (req, res) => {
 exports.getLastWatchedCourse = async (req, res) => {
   try {
     const studentId = req.student._id;
+    const { playlistId } = req.params;
 
-    const lastWatchedCourse = await CourseWatch.findOne({ student: studentId })
-      .sort({ watchedAt: -1 })
-      .populate('course')
-      .lean();
+    // Build the query
+    const query = { student: studentId };
 
-    if (!lastWatchedCourse) {
-      return res.status(200).json({
-        success: true,
-        data: null,
-        message: 'No courses watched yet'
-      });
+    // If playlistId is provided, filter courses by playlist
+    let lastWatchedCourse;
+    if (playlistId) {
+      lastWatchedCourse = await CourseWatch.findOne(query)
+        .sort({ watchedAt: -1 })
+        .populate({
+          path: 'course',
+          match: { playlistId },
+          select: 'title description name titleFile videoLink duration playlistId isLocked fields socialMedia'
+        })
+        .lean();
+
+      // If no course found with the current playlist, return null
+      if (!lastWatchedCourse || !lastWatchedCourse.course) {
+        return res.status(200).json({
+          success: true,
+          data: null,
+          message: 'No courses watched in this playlist'
+        });
+      }
+    } else {
+      // If no playlistId, get the last watched course from any playlist
+      lastWatchedCourse = await CourseWatch.findOne(query)
+        .sort({ watchedAt: -1 })
+        .populate('course')
+        .lean();
+
+      if (!lastWatchedCourse) {
+        return res.status(200).json({
+          success: true,
+          data: null,
+          message: 'No courses watched yet'
+        });
+      }
     }
 
     return res.status(200).json({
@@ -354,14 +381,17 @@ exports.getLastWatchedCourse = async (req, res) => {
         course: lastWatchedCourse.course,
         watchDuration: lastWatchedCourse.watchDuration,
         watchedAt: lastWatchedCourse.watchedAt,
-        progress: lastWatchedCourse.progress
+        progress: lastWatchedCourse.progress,
+        lastPosition: lastWatchedCourse.lastPosition,
+        completed: lastWatchedCourse.completed
       }
     });
   } catch (error) {
     console.error('Error getting last watched course:', error);
     return res.status(500).json({
       success: false,
-      message: 'Error getting last watched course'
+      message: 'Error getting last watched course',
+      error: error.message
     });
   }
 };
