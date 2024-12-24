@@ -89,7 +89,10 @@ exports.createCourse = async (req, res) => {
       duration,
       playlistId,
       socialMedia: socialMedia || {},
-      fields: Array.isArray(fields) ? fields : []
+      fields: Array.isArray(fields) ? fields.map(field => ({
+        key: field.key,
+        value: field.value
+      })) : []
     });
 
     await course.save();
@@ -225,7 +228,12 @@ exports.updateCourse = async (req, res) => {
     if (name) updates.name = name;
     if (playlistId) updates.playlistId = playlistId;
     if (socialMedia) updates.socialMedia = socialMedia;
-    if (Array.isArray(fields)) updates.fields = fields;
+    if (Array.isArray(fields)) {
+      updates.fields = fields.map(field => ({
+        key: field.key,
+        value: field.value
+      }));
+    }
 
     // Handle image file update
     if (req.files?.['image']?.[0]) {

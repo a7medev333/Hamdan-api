@@ -52,6 +52,7 @@ const courseSchema = new mongoose.Schema({
     }
   },
   fields: [{
+    _id: false,
     key: {
       type: String,
       required: true,
@@ -74,6 +75,12 @@ const courseSchema = new mongoose.Schema({
       ret.id = ret._id;
       delete ret._id;
       delete ret.__v;
+      if (ret.fields) {
+        ret.fields = ret.fields.map(field => ({
+          key: field.key,
+          value: field.value
+        }));
+      }
       return ret;
     }
   }
