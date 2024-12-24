@@ -12,7 +12,7 @@ router.use(logger);
 // Public routes
 router.get('/courses', courseController.listCourses);
 router.get('/courses/:id', courseController.getCourse);
-router.get('/playlist/:playlistId/courses', courseController.getCoursesByPlaylist);
+// router.get('/playlist/:playlistId/courses', courseController.getCoursesByPlaylist);
 
 // Protected routes (require authentication)
 router.use(auth);
