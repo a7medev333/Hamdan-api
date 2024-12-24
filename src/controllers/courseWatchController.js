@@ -161,22 +161,64 @@ exports.getCourseProgress = async (req, res) => {
 exports.getWatchHistory = async (req, res) => {
   try {
     const studentId = req.student._id;
+    const { playlistId } = req.params;
 
     const student = await Student.findById(studentId).select('totalWatchingHours');
-    const watchHistory = await CourseWatch.find({ student: studentId })
-      .populate('course', 'title description titleFile')
-      .sort('-watchedAt');
 
-    res.json({
-      success: true,
-      message: 'Watch history retrieved successfully',
-      data: {
-        totalWatchingHours: student.totalWatchingHours,
-        history: watchHistory
-      }
-    });
+    // Build the query
+    let watchHistory;
+    if (playlistId) {
+      // If playlistId is provided, get watch history for that playlist
+      watchHistory = await CourseWatch.find({ student: studentId })
+        .populate({
+          path: 'course',
+          match: { playlistId },
+          select: 'title description titleFile videoLink duration playlistId isLocked fields socialMedia'
+        })
+        .sort('-watchedAt')
+        .lean();
+
+      // Filter out null courses (courses that don't match the playlist)
+      watchHistory = watchHistory.filter(record => record.course);
+
+      // Calculate total watching hours for this playlist
+      const playlistWatchingHours = watchHistory.reduce((total, record) => {
+        return total + (record.watchDuration || 0);
+      }, 0) / 3600; // Convert seconds to hours
+
+      return res.json({
+        success: true,
+        message: 'Watch history retrieved successfully',
+        data: {
+          totalWatchingHours: playlistWatchingHours,
+          history: watchHistory.map(record => ({
+            ...record,
+            watchedAgo: timeAgo(record.watchedAt)
+          }))
+        }
+      });
+    } else {
+      // If no playlistId, get all watch history
+      watchHistory = await CourseWatch.find({ student: studentId })
+        .populate('course', 'title description titleFile videoLink duration playlistId isLocked fields socialMedia')
+        .sort('-watchedAt')
+        .lean();
+
+      return res.json({
+        success: true,
+        message: 'Watch history retrieved successfully',
+        data: {
+          totalWatchingHours: student.totalWatchingHours,
+          history: watchHistory.map(record => ({
+            ...record,
+            watchedAgo: timeAgo(record.watchedAt)
+          }))
+        }
+      });
+    }
   } catch (error) {
-    res.status(400).json({
+    console.error('Error retrieving watch history:', error);
+    res.status(500).json({
       success: false,
       message: 'Error retrieving watch history',
       error: error.message
