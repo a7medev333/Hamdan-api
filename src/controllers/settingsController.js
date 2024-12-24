@@ -475,3 +475,36 @@ exports.getMyNotifications = async (req, res) => {
     });
   }
 };
+
+// Mark all notifications as read for authenticated user
+exports.markAllNotificationsAsRead = async (req, res) => {
+  try {
+    const studentId = req.student.id;
+
+    // Update all unread notifications for the student
+    const result = await Notification.updateMany(
+      { 
+        student: studentId,
+        isRead: false
+      },
+      {
+        $set: { isRead: true }
+      }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'All notifications marked as read',
+      data: {
+        modifiedCount: result.modifiedCount,
+        matchedCount: result.matchedCount
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error marking notifications as read',
+      error: error.message
+    });
+  }
+};
