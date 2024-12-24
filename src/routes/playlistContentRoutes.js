@@ -20,9 +20,12 @@ router.post('/playlists', upload.single('image'), playlistContentController.crea
 router.put('/playlists/:id', upload.single('image'), playlistContentController.updatePlaylistContent);
 router.delete('/playlists/:id', playlistContentController.deletePlaylistContent);
 
+// Get playlist courses
+router.get('/playlists/:playlistId/courses', playlistContentController.getPlaylistCourses);
+
 // Cart management
 router.post('/playlists/:playlistId/cart', playlistContentController.addToCart);
 router.delete('/playlists/:playlistId/cart', playlistContentController.removeFromCart);
-router.get('/student/cart', playlistContentController.getCart);
+router.get('/cart', playlistContentController.getCart);
 
 module.exports = router;

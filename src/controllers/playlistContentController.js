@@ -359,3 +359,66 @@ exports.getCart = async (req, res) => {
     });
   }
 };
+
+// Get available courses by playlist ID
+exports.getPlaylistCourses = async (req, res) => {
+  try {
+    const { playlistId } = req.params;
+    const studentId = req.student._id;
+
+    // Verify playlist exists and student has access
+    const playlist = await PlaylistContent.findOne({
+      _id: playlistId,
+      student: studentId
+    });
+
+    if (!playlist) {
+      return res.status(404).json({
+        success: false,
+        message: 'Playlist not found or access denied'
+      });
+    }
+
+    // Get courses for this playlist with watch status
+    const courses = await Course.find({ playlistId })
+      .sort({ createdAt: -1 });
+
+    // Get watch records for these courses
+    const watchRecords = await CourseWatch.find({
+      student: studentId,
+      course: { $in: courses.map(course => course._id) }
+    });
+
+    // Create a map of course ID to watch record
+    const watchMap = new Map(watchRecords.map(record => [record.course.toString(), record]));
+
+    // Format courses with watch information
+    const formattedCourses = courses.map(course => {
+      const courseObj = course.toObject();
+      const watchRecord = watchMap.get(courseObj._id.toString());
+
+      return {
+        ...courseObj,
+        id: courseObj._id,
+        watchDuration: watchRecord ? watchRecord.watchDuration : 0,
+        lastPosition: watchRecord ? watchRecord.lastPosition : 0,
+        completed: watchRecord ? watchRecord.completed : false,
+        lastWatched: watchRecord ? watchRecord.watchedAt : null,
+        lastWatchedAgo: watchRecord ? timeAgo(watchRecord.watchedAt) : null,
+        progress: watchRecord ? 
+          Math.round((watchRecord.lastPosition / (courseObj.duration || 1)) * 100) : 0
+      };
+    });
+
+    res.json({
+      success: true,
+      data: formattedCourses
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching playlist courses',
+      error: error.message
+    });
+  }
+};
