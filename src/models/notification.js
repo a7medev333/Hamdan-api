@@ -39,5 +39,12 @@ const notificationSchema = new mongoose.Schema({
 notificationSchema.index({ student: 1, createdAt: -1 });
 notificationSchema.index({ isRead: 1 });
 
+// Method to find the last notification by type
+notificationSchema.statics.findLastByType = async function(type, studentId) {
+    // Logic to fetch the last notification based on type and token
+    // This is a placeholder; implement the actual database query here
+    return await this.findOne({ type:type , student:studentId }).sort({ createdAt: -1 });
+};
+
 const Notification = mongoose.model('Notification', notificationSchema);
 module.exports = Notification;

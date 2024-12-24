@@ -42,7 +42,7 @@ exports.getSettings = async (req, res) => {
     
     res.json({
       success: true,
-      data: settings
+      data: settings["supportLinks"]
     });
   } catch (error) {
     res.status(500).json({
@@ -506,5 +506,20 @@ exports.markAllNotificationsAsRead = async (req, res) => {
       message: 'Error marking notifications as read',
       error: error.message
     });
+  }
+};
+
+// Fetch last notification by type
+exports.fetchLastNotificationByType = async (req, res) => {
+  const studentId = req.student._id;
+  
+  try {
+    const notification = await Notification.findLastByType("welcome", studentId);
+    if (!notification) {
+      return res.status(404).json({ message: 'No notifications found.' });
+    }
+    return res.status(200).json(notification);
+  } catch (error) {
+    return res.status(500).json({ message: 'Error fetching notification', error });
   }
 };

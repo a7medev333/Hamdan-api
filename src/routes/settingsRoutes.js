@@ -27,4 +27,7 @@ router.post('/my-notifications/mark-all-read', settingsController.markAllNotific
 // Get student notifications
 router.get('/settings/notifications/:studentId', settingsController.getStudentNotifications);
 
+// Fetch last notification by type
+router.get('/notifications/last/', settingsController.fetchLastNotificationByType);
+
 module.exports = router;
