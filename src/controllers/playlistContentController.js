@@ -393,13 +393,32 @@ exports.getPlaylistCourses = async (req, res) => {
         lastWatched: watchRecord ? watchRecord.watchedAt : null,
         lastWatchedAgo: watchRecord ? timeAgo(watchRecord.watchedAt) : null,
         progress: watchRecord ? 
-          Math.round((watchRecord.lastPosition / (courseObj.duration || 1)) * 100) : 0
+          Math.round((watchRecord.lastPosition / (courseObj.duration || 1)) * 100) : 0,
+        socialMedia: {
+          whatsapp: courseObj.socialMedia?.whatsapp || null,
+          telegram: courseObj.socialMedia?.telegram || null
+        }
       };
     });
 
+    // Get playlist details
+    const playlist = await PlaylistContent.findById(playlistId);
+    
     res.json({
       success: true,
-      data: formattedCourses
+      data: {
+        playlist: playlist ? {
+          id: playlist._id,
+          title: playlist.title,
+          description: playlist.description,
+          image: playlist.image ? process.env.HOST_IMAGE + playlist.image : '',
+          videoLength: playlist.videoLength,
+          createdAt: playlist.createdAt,
+          createdAgo: timeAgo(playlist.createdAt)
+        } : null,
+        courses: formattedCourses,
+        totalCourses: formattedCourses.length
+      }
     });
   } catch (error) {
     res.status(500).json({

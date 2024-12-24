@@ -4,6 +4,7 @@ const path = require('path');
 const { getVideoDurationInSeconds } = require('get-video-duration');
 const PlaylistContent = require('../models/playlistContent');
 const CourseWatch = require('../models/courseWatch');
+const timeAgo = require('../utils/timeAgo');
 
 // Create new course
 exports.createCourse = async (req, res) => {
@@ -389,15 +390,11 @@ exports.getCoursesByPlaylist = async (req, res) => {
     const { playlistId } = req.params;
     
     // Find all courses for this playlist
-    const courses = await Course.find({ 
-      playlistId
-    })
-    .populate('playlistId', 'title description image videoLength')
-    .sort({ createdAt: -1 });
+    const courses = await Course.find({ playlistId })
+      .sort({ createdAt: -1 });
 
     // Get the playlist details
-    const playlist = await PlaylistContent.findById(playlistId)
-      .select('title description image videoLength');
+    const playlist = await PlaylistContent.findById(playlistId);
 
     if (!playlist) {
       return res.status(404).json({
@@ -406,49 +403,50 @@ exports.getCoursesByPlaylist = async (req, res) => {
       });
     }
 
-    // Get watching counts for each course
-    const now = new Date();
-    const twentyFourHoursAgo = new Date(now - 24 * 60 * 60 * 1000);
-
-    const watchingCounts = await CourseWatch.aggregate([
-      {
-        $match: {
-          course: { $in: courses.map(c => c._id) },
-          watchedAt: { $gte: twentyFourHoursAgo }
-        }
-      },
-      {
-        $group: {
-          _id: '$course',
-          watchingCount: { $sum: 1 }
-        }
-      }
-    ]);
-
-    // Create a map of course ID to watching count
-    const watchingCountMap = watchingCounts.reduce((acc, curr) => {
-      acc[curr._id.toString()] = curr.watchingCount;
-      return acc;
-    }, {});
-
-    // Add watching count to each course
-    const coursesWithWatchCount = courses.map(course => ({
-      ...course.toObject(),
-      watchingCount: watchingCountMap[course._id.toString()] || 0
-    }));
+    // Format courses with all fields
+    const formattedCourses = courses.map(course => {
+      const courseObj = course.toObject();
+      return {
+        id: courseObj._id,
+        title: courseObj.title,
+        description: courseObj.description,
+        name: courseObj.name,
+        titleFile: courseObj.titleFile,
+        videoLink: courseObj.videoLink,
+        duration: courseObj.duration,
+        playlistId: courseObj.playlistId,
+        isLocked: courseObj.isLocked,
+        socialMedia: {
+          whatsapp: courseObj.socialMedia?.whatsapp || null,
+          telegram: courseObj.socialMedia?.telegram || null
+        },
+        createdAt: courseObj.createdAt,
+        createdAgo: timeAgo(courseObj.createdAt),
+        updatedAt: courseObj.updatedAt,
+        updatedAgo: timeAgo(courseObj.updatedAt)
+      };
+    });
 
     res.json({
       success: true,
       data: {
-        playlist,
-        courses: coursesWithWatchCount,
-        totalCourses: courses.length
+        playlist: {
+          id: playlist._id,
+          title: playlist.title,
+          description: playlist.description,
+          image: playlist.image ? process.env.HOST_IMAGE + playlist.image : '',
+          videoLength: playlist.videoLength,
+          createdAt: playlist.createdAt,
+          createdAgo: timeAgo(playlist.createdAt)
+        },
+        courses: formattedCourses,
+        totalCourses: formattedCourses.length
       }
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error fetching courses by playlist',
+      message: 'Error fetching courses',
       error: error.message
     });
   }
