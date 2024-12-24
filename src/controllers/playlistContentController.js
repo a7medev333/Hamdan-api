@@ -345,14 +345,7 @@ exports.getCart = async (req, res) => {
 
     res.json({
       success: true,
-      data: {
-        student: {
-          id: student._id,
-          name: student.name,
-          email: student.email
-        },
-        cart: formattedCart
-      }
+      data: formattedCart
     });
   } catch (error) {
     res.status(500).json({
