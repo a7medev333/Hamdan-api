@@ -187,8 +187,20 @@ exports.updateCourse = async (req, res) => {
     } = req.body;
 
     // Find course by id
-    const course = await Course.findById(id);
+    let course = await Course.findById(id);
     if (!course) {
+      // Clean up uploaded files if any
+      if (req.files) {
+        for (const fileArray of Object.values(req.files)) {
+          for (const file of fileArray) {
+            try {
+              await fs.unlink(file.path);
+            } catch (unlinkError) {
+              console.error('Error deleting file:', unlinkError);
+            }
+          }
+        }
+      }
       return res.status(404).json({
         success: false,
         message: 'Course not found'
@@ -206,58 +218,50 @@ exports.updateCourse = async (req, res) => {
       }
     }
 
-    // Update basic fields if provided
-    if (title) course.title = title;
-    if (description) course.description = description;
-    if (name) course.name = name;
-    if (playlistId) course.playlistId = playlistId;
-    if (socialMedia) course.socialMedia = socialMedia;
-    if (Array.isArray(fields)) course.fields = fields;
-
     // Handle file updates
-    const updates = {
-      title,
-      description,
-      name,
-      playlistId: playlistId || course.playlistId,
-      socialMedia
-    };
+    const updates = {};
+    if (title) updates.title = title;
+    if (description) updates.description = description;
+    if (name) updates.name = name;
+    if (playlistId) updates.playlistId = playlistId;
+    if (socialMedia) updates.socialMedia = socialMedia;
+    if (Array.isArray(fields)) updates.fields = fields;
 
-    if (req.files) {
-      // Update image if provided
-      if (req.files['image']) {
-        updates.titleFile = req.files['image'][0].path;
-        // Delete old image
+    // Handle image file update
+    if (req.files?.['image']?.[0]) {
+      const titleFile = req.files['image'][0].path;
+      // Delete old image file
+      try {
         if (course.titleFile) {
-          await fs.unlink(course.titleFile).catch(console.error);
+          await fs.unlink(course.titleFile);
         }
+      } catch (error) {
+        console.error('Error deleting old image file:', error);
+      }
+      updates.titleFile = titleFile;
+    }
+
+    // Handle video file update
+    if (req.files?.['video']?.[0]) {
+      const videoFile = req.files['video'][0].path;
+      // Get video duration
+      try {
+        const duration = await getVideoDurationInSeconds(videoFile);
+        updates.duration = Math.round(duration);
+      } catch (error) {
+        console.error('Error getting video duration:', error);
+        updates.duration = 0;
       }
 
-      // Update video if provided
-      if (req.files['video']) {
-        updates.videoLink = req.files['video'][0].path;
-        
-        // Get new video duration
-        try {
-          updates.duration = Math.round(await getVideoDurationInSeconds(updates.videoLink));
-          
-          // Update playlist videoLength
-          const playlist = await PlaylistContent.findById(updates.playlistId);
-          if (playlist) {
-            playlist.videoLength = formatDuration(updates.duration);
-            await playlist.save();
-          }
-        } catch (error) {
-          console.error('Error getting video duration:', error);
-          // Keep existing duration if there's an error
-          updates.duration = course.duration;
-        }
-
-        // Delete old video
+      // Delete old video file
+      try {
         if (course.videoLink) {
-          await fs.unlink(course.videoLink).catch(console.error);
+          await fs.unlink(course.videoLink);
         }
+      } catch (error) {
+        console.error('Error deleting old video file:', error);
       }
+      updates.videoLink = videoFile;
     }
 
     // Update course
@@ -267,13 +271,34 @@ exports.updateCourse = async (req, res) => {
       { new: true }
     ).populate('playlistId', 'title description image');
 
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: 'Course not found'
+      });
+    }
+
     res.json({
       success: true,
       message: 'Course updated successfully',
-      data: course
+      data: {
+        id: course._id,
+        title: course.title,
+        description: course.description,
+        name: course.name,
+        titleFile: course.titleFile,
+        videoLink: course.videoLink,
+        duration: course.duration,
+        playlistId: course.playlistId,
+        isLocked: course.isLocked,
+        fields: course.fields || [],
+        socialMedia: course.socialMedia || {},
+        createdAt: course.createdAt,
+        updatedAt: course.updatedAt
+      }
     });
   } catch (error) {
-    // Clean up newly uploaded files if there's an error
+    // Clean up uploaded files if any error occurs
     if (req.files) {
       for (const fileArray of Object.values(req.files)) {
         for (const file of fileArray) {
@@ -286,7 +311,8 @@ exports.updateCourse = async (req, res) => {
       }
     }
 
-    res.status(400).json({
+    console.error('Error updating course:', error);
+    res.status(500).json({
       success: false,
       message: 'Error updating course',
       error: error.message
