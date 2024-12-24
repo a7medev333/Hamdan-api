@@ -323,7 +323,7 @@ exports.getCart = async (req, res) => {
 
     // Get student with populated cart
     const student = await Student.findById(studentId)
-      .populate('cart', 'title description image videoLength courses');
+      .populate('cart', 'title description image videoLength');
 
     if (!student) {
       return res.status(404).json({
@@ -332,16 +332,20 @@ exports.getCart = async (req, res) => {
       });
     }
 
-    // Format cart items and add course count
-    const formattedCart = student.cart.map(item => {
+    // Format cart items and get course counts
+    const formattedCart = await Promise.all(student.cart.map(async item => {
       const cartItem = item.toObject();
+      
+      // Count courses for this playlist
+      const totalCourses = await Course.countDocuments({ playlistId: cartItem._id });
+      
       return {
         ...cartItem,
         id: cartItem._id,
         image: cartItem.image ? process.env.HOST_IMAGE + cartItem.image : '',
-        totalCourses: cartItem.courses ? cartItem.courses.length : 0
+        totalCourses
       };
-    });
+    }));
 
     res.json({
       success: true,
